@@ -8,9 +8,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/opencontainers/go-digest"
-	"github.com/opencontainers/image-spec/specs-go/v1"
+        "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 func createLayoutFile(root string) error {
@@ -77,8 +78,10 @@ func createBlob(root string, stream io.Reader) (v1.Descriptor, error) {
 		return v1.Descriptor{}, err
 	}
 
-	if err := f.Chmod(0644); err != nil {
-		return v1.Descriptor{}, err
+	if runtime.GOOS != "windows" {
+		if err := f.Chmod(0644); err != nil {
+			return v1.Descriptor{}, err
+		}
 	}
 
 	if err := digester.Digest().Validate(); err != nil {
